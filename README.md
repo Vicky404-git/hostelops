@@ -97,23 +97,7 @@ The `admin_panel` command is used to display the admin panel.
 
 Displays the admin panel.
 
-### Running the Application
-
-The `main` command is the entry point of the application.
-
-##### Syntax
-
-* `main()`
-
-##### Description
-
-Runs the application.
-
 ## API Reference
-
-### app.py
-
-No functions documented.
 
 ### main.py
 
@@ -144,6 +128,14 @@ No functions documented.
 
 * `current_time()`: Returns the current time.
 
+### admin.py
+
+#### Functions
+
+##### admin_panel
+
+* `admin_panel()`: Displays the admin panel.
+
 ### student.py
 
 #### Functions
@@ -152,6 +144,37 @@ No functions documented.
 
 * `student_panel()`: Displays the student panel.
 
+## Detailed API Documentation
+
+### main.py
+
+#### Functions
+
+##### load_data
+
+* `load_data(file)`: Loads data from the specified file.
+* Parameters:
+	+ `file`: The file to load data from.
+
+##### save_data
+
+* `save_data(file, data)`: Saves data to the specified file.
+* Parameters:
+	+ `file`: The file to save data to.
+	+ `data`: The data to save.
+
+##### save_image
+
+* `save_image(file, issue_id, event_type)`: Saves an image to the specified file.
+* Parameters:
+	+ `file`: The file to save the image to.
+	+ `issue_id`: The ID of the issue.
+	+ `event_type`: The type of event.
+
+##### current_time
+
+* `current_time()`: Returns the current time.
+
 ### admin.py
 
 #### Functions
@@ -159,3 +182,33 @@ No functions documented.
 ##### admin_panel
 
 * `admin_panel()`: Displays the admin panel.
+
+### student.py
+
+#### Functions
+
+##### student_panel
+
+* `student_panel()`: Displays the student panel.
+
+## Panels Documentation
+
+### Admin Panel
+
+#### Description
+
+The admin panel provides administrative functionality.
+
+#### Usage
+
+* `admin_panel()`
+
+### Student Panel
+
+#### Description
+
+The student panel provides student functionality.
+
+#### Usage
+
+* `student_panel()`
