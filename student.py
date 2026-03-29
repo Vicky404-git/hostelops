@@ -1,34 +1,103 @@
-if issue["status"] == "Resolved":
-    st.warning("⚠️ Please confirm if issue is resolved")
+import streamlit as st
+from main import load_data, save_data, save_image, current_time
 
-    col1, col2 = st.columns(2)
+def student_panel():
+    issues = load_data("issues.json")
+    events = load_data("events.json")
 
-    if col1.button(f"Confirm Done {issue['id']}", key=f"confirm_{issue['id']}"):
-        issue["status"] = "Confirmed"
+    # ---------------- REPORT ISSUE ----------------
+    st.subheader("📌 Report Issue")
+
+    issue_type = st.selectbox(
+        "Issue Type",
+        ["Water", "Electricity", "Food", "Hygiene"]
+    )
+
+    desc = st.text_input("Description (optional)")
+
+    image = st.file_uploader(
+        "Upload Proof (optional)",
+        type=["png", "jpg", "jpeg"]
+    )
+
+    if st.button("Submit Issue"):
+        issue_id = f"ISSUE{len(issues)+1}"
+        time = current_time()
+
+        img_path = save_image(image, issue_id, "reported")
+
+        issues.append({
+            "id": issue_id,
+            "type": issue_type,
+            "description": desc,
+            "status": "Reported",
+            "created_at": time
+        })
 
         events.append({
-            "issue_id": issue["id"],
-            "event": "Confirmed by Student",
-            "time": current_time()
+            "issue_id": issue_id,
+            "event": "Reported",
+            "time": time,
+            "image": img_path
         })
 
         save_data("issues.json", issues)
         save_data("events.json", events)
 
-        st.success("Issue confirmed!")
-        st.rerun()
+        st.success(f"Issue {issue_id} submitted!")
 
-    if col2.button(f"Not Done {issue['id']}", key=f"reopen_{issue['id']}"):
-        issue["status"] = "Reopened"
+    # ---------------- VIEW ISSUES ----------------
+    st.subheader("📊 Your Issues")
 
-        events.append({
-            "issue_id": issue["id"],
-            "event": "Reopened by Student",
-            "time": current_time()
-        })
+    for issue in issues:
+        st.markdown(f"### {issue['id']}")
+        st.write(f"Status: {issue['status']}")
 
-        save_data("issues.json", issues)
-        save_data("events.json", events)
+        # -------- Timeline --------
+        for event in events:
+            if event["issue_id"] == issue["id"]:
+                st.write(f"{event['time']} → {event['event']}")
+                if event.get("image"):
+                    st.image(event["image"], width=200)
 
-        st.error("Issue reopened!")
-        st.rerun()
+        # -------- CONFIRMATION --------
+        if issue["status"] == "Resolved":
+            st.warning("⚠️ Please confirm if issue is resolved")
+
+            col1, col2 = st.columns(2)
+
+            if col1.button(
+                f"Confirm Done {issue['id']}",
+                key=f"confirm_{issue['id']}"
+            ):
+                issue["status"] = "Confirmed"
+
+                events.append({
+                    "issue_id": issue["id"],
+                    "event": "Confirmed by Student",
+                    "time": current_time()
+                })
+
+                save_data("issues.json", issues)
+                save_data("events.json", events)
+
+                st.success("Issue confirmed!")
+                st.rerun()
+
+            if col2.button(
+                f"Not Done {issue['id']}",
+                key=f"reopen_{issue['id']}"
+            ):
+                issue["status"] = "Reopened"
+
+                events.append({
+                    "issue_id": issue["id"],
+                    "event": "Reopened by Student",
+                    "time": current_time()
+                })
+
+                save_data("issues.json", issues)
+                save_data("events.json", events)
+
+                st.error("Issue reopened!")
+                st.rerun()
