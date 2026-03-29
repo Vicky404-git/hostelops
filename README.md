@@ -85,6 +85,18 @@ The `admin_panel` command is used to display the admin panel.
 
 Displays the admin panel.
 
+#### Student Panel
+
+The `student_panel` command is used to display the student panel.
+
+##### Syntax
+
+* `student_panel()`
+
+##### Description
+
+Displays the student panel.
+
 ## API Reference
 
 ### main.py
@@ -123,6 +135,14 @@ Displays the admin panel.
 ##### admin_panel
 
 * `admin_panel()`: Displays the admin panel.
+
+### student.py
+
+#### Functions
+
+##### student_panel
+
+* `student_panel()`: Displays the student panel.
 
 ## Detailed API Documentation
 
@@ -163,6 +183,14 @@ Displays the admin panel.
 
 * `admin_panel()`: Displays the admin panel.
 
+### student.py
+
+#### Functions
+
+##### student_panel
+
+* `student_panel()`: Displays the student panel.
+
 ## Panels Documentation
 
 ### Admin Panel
@@ -175,12 +203,18 @@ The admin panel provides administrative functionality.
 
 * `admin_panel()`
 
-## Removed Student Panel Documentation
+### Student Panel
 
-The student panel documentation has been removed due to it not being found in the provided project source.
+#### Description
+
+The student panel provides student functionality.
+
+#### Usage
+
+* `student_panel()`
 
 ## Update History
 
 * Initial README.md creation
-* Updated to reflect accurate project source information
-* Removed student_panel from documentation due to absence in project source.
+* Updated to reflect accurate project source information 
+* Added student_panel to documentation due to presence in project source.
