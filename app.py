@@ -11,9 +11,12 @@ st.caption("Operational Accountability Platform")
 role = st.selectbox("Portal Access", ["Select...", "Student Portal", "Admin / Warden Login"])
 
 if role == "Student Portal":
-    student_panel()
+    # NEW: Student Login
+    student_id = st.text_input("Enter Student ID / Roll Number")
+    if student_id:
+        student_panel(student_id) # Pass the ID to the panel
+
 elif role == "Admin / Warden Login":
-    # Simple password protection for the demo
     password = st.text_input("Enter Warden Password", type="password")
     if password == "admin123":
         admin_panel()

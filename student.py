@@ -1,12 +1,12 @@
 import streamlit as st
 from main import load_data, save_data, save_image, current_time
 
-def student_panel():
+def student_panel(student_id): # <-- UPDATE HERE
     issues = load_data("issues.json")
     events = load_data("events.json")
 
     # ---------------- REPORT ISSUE ----------------
-    st.subheader("📌 Report an Issue")
+    st.subheader(f"📌 Report an Issue (User: {student_id})")
 
     hostel_block = st.selectbox("Hostel Block", ["Block A (Boys)", "Block B (Boys)", "Block C (Girls)", "PG Hostel"])
     
@@ -17,17 +17,16 @@ def student_panel():
     is_anonymous = st.checkbox("Keep my identity/room anonymous from ground staff")
 
     desc = st.text_area("Description (optional)")
-
     image = st.file_uploader("Upload Proof (optional)", type=["png", "jpg", "jpeg"])
 
     if st.button("Submit Issue"):
         issue_id = f"ISSUE{len(issues)+1}"
         time = current_time()
-
         img_path = save_image(image, issue_id, "reported")
 
         issues.append({
             "id": issue_id,
+            "student_id": student_id, # <-- NEW: Link issue to this specific student
             "block": hostel_block,
             "room": "Classified" if is_anonymous else room_no,
             "type": issue_type,
@@ -53,7 +52,13 @@ def student_panel():
     st.divider()
     st.subheader("📊 Your Active Issues")
 
-    for issue in issues:
+    # NEW: Filter issues to ONLY show this student's issues
+    my_issues = [i for i in issues if i.get("student_id") == student_id]
+
+    if not my_issues:
+        st.info("You have not reported any issues yet.")
+
+    for issue in my_issues:
         st.markdown(f"### {issue['id']}")
         st.write(f"**Status:** {issue['status']}")
 
@@ -67,16 +72,11 @@ def student_panel():
         # -------- CONFIRMATION LOOP --------
         if issue["status"] == "Resolved":
             st.warning("⚠️ Action Required: Please confirm if this issue is actually resolved.")
-
             col1, col2 = st.columns(2)
 
             if col1.button(f"Yes, it is fixed ({issue['id']})", key=f"confirm_{issue['id']}"):
                 issue["status"] = "Confirmed"
-                events.append({
-                    "issue_id": issue["id"],
-                    "event": "Confirmed by Student",
-                    "time": current_time()
-                })
+                events.append({"issue_id": issue["id"], "event": "Confirmed by Student", "time": current_time()})
                 save_data("issues.json", issues)
                 save_data("events.json", events)
                 st.success("Issue closed!")
@@ -84,11 +84,7 @@ def student_panel():
 
             if col2.button(f"No, it is NOT fixed ({issue['id']})", key=f"reopen_{issue['id']}"):
                 issue["status"] = "Reopened"
-                events.append({
-                    "issue_id": issue["id"],
-                    "event": "Reopened by Student (Escalated)",
-                    "time": current_time()
-                })
+                events.append({"issue_id": issue["id"], "event": "Reopened by Student (Escalated)", "time": current_time()})
                 save_data("issues.json", issues)
                 save_data("events.json", events)
                 st.error("Issue reopened and escalated to Warden!")
