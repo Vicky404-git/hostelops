@@ -44,45 +44,51 @@ def admin_panel():
             if issue.get('description'):
                 st.caption(f"Details: {issue['description']}")
 
-            # Assignment Dropdown
-            worker = st.selectbox(
-                "Assign Staff", 
-                ["Maintenance Team Alpha", "Plumber Ram", "Electrician Shyam", "Cleaning Staff"], 
-                key=f"worker_{issue['id']}"
-            )
+            # Hide action buttons if the issue is completely verified
+            if issue.get('status') == 'Confirmed':
+                st.success("✅ This issue has been verified and closed by the student.")
+            else:
+                # Assignment Dropdown
+                worker = st.selectbox(
+                    "Assign Staff", 
+                    ["Maintenance Team Alpha", "Plumber Ram", "Electrician Shyam", "Cleaning Staff"], 
+                    key=f"worker_{issue['id']}"
+                )
 
-            col1, col2 = st.columns(2)
-            
-            # Action Buttons
-            if col1.button(f"Assign & Start ({issue['id']})", key=f"start_{issue['id']}"):
-                img_progress = st.file_uploader(f"Progress Proof ({issue['id']})", key=f"prog_{issue['id']}")
-                path = save_image(img_progress, issue["id"], "progress") if img_progress else None
+                # Streamlit Fix: File uploaders must be rendered OUTSIDE the button clicks
+                img_progress = st.file_uploader(f"Upload Progress Proof ({issue['id']})", key=f"prog_{issue['id']}")
+                img_resolved = st.file_uploader(f"Upload Resolution Proof ({issue['id']})", key=f"res_{issue['id']}")
 
-                issue["status"] = f"In Progress ({worker})"
-                events.append({
-                    "issue_id": issue["id"],
-                    "event": f"Assigned to {worker} - Work Started",
-                    "time": current_time(),
-                    "image": path
-                })
-                save_data("issues.json", issues)
-                save_data("events.json", events)
-                st.rerun()
+                col1, col2 = st.columns(2)
+                
+                # Action Buttons
+                if col1.button(f"Assign & Start ({issue['id']})", key=f"start_{issue['id']}"):
+                    path = save_image(img_progress, issue["id"], "progress") if img_progress else None
 
-            if col2.button(f"Mark Resolved ({issue['id']})", key=f"resolve_{issue['id']}"):
-                img_resolved = st.file_uploader(f"Resolution Proof ({issue['id']})", key=f"res_{issue['id']}")
-                path = save_image(img_resolved, issue["id"], "resolved") if img_resolved else None
+                    issue["status"] = f"In Progress ({worker})"
+                    events.append({
+                        "issue_id": issue["id"],
+                        "event": f"Assigned to {worker} - Work Started",
+                        "time": current_time(),
+                        "image": path
+                    })
+                    save_data("issues.json", issues)
+                    save_data("events.json", events)
+                    st.rerun()
 
-                issue["status"] = "Resolved"
-                events.append({
-                    "issue_id": issue["id"],
-                    "event": "Resolved by Staff",
-                    "time": current_time(),
-                    "image": path
-                })
-                save_data("issues.json", issues)
-                save_data("events.json", events)
-                st.rerun()
+                if col2.button(f"Mark Resolved ({issue['id']})", key=f"resolve_{issue['id']}"):
+                    path = save_image(img_resolved, issue["id"], "resolved") if img_resolved else None
+
+                    issue["status"] = "Resolved"
+                    events.append({
+                        "issue_id": issue["id"],
+                        "event": "Resolved by Staff",
+                        "time": current_time(),
+                        "image": path
+                    })
+                    save_data("issues.json", issues)
+                    save_data("events.json", events)
+                    st.rerun()
         st.write("---")
 
     # ---------------- TIMELINE & AUDIT ----------------
