@@ -7,9 +7,15 @@ st.set_page_config(page_title="HostelOps", layout="centered")
 st.title("🏠 HostelOps")
 st.caption("Operational Accountability Platform")
 
-role = st.radio("Select Role", ["Student", "Admin"])
+# Simulated Login System
+role = st.selectbox("Portal Access", ["Select...", "Student Portal", "Admin / Warden Login"])
 
-if role == "Student":
+if role == "Student Portal":
     student_panel()
-else:
-    admin_panel()
+elif role == "Admin / Warden Login":
+    # Simple password protection for the demo
+    password = st.text_input("Enter Warden Password", type="password")
+    if password == "admin123":
+        admin_panel()
+    elif password != "":
+        st.error("Incorrect password. Hint: try 'admin123'")

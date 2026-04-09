@@ -6,19 +6,19 @@ def student_panel():
     events = load_data("events.json")
 
     # ---------------- REPORT ISSUE ----------------
-    st.subheader("📌 Report Issue")
+    st.subheader("📌 Report an Issue")
 
-    issue_type = st.selectbox(
-        "Issue Type",
-        ["Water", "Electricity", "Food", "Hygiene"]
-    )
+    hostel_block = st.selectbox("Hostel Block", ["Block A (Boys)", "Block B (Boys)", "Block C (Girls)", "PG Hostel"])
+    
+    col1, col2 = st.columns(2)
+    issue_type = col1.selectbox("Issue Type", ["Water", "Electricity", "Food", "Hygiene", "Infrastructure"])
+    room_no = col2.text_input("Room Number")
+    
+    is_anonymous = st.checkbox("Keep my identity/room anonymous from ground staff")
 
-    desc = st.text_input("Description (optional)")
+    desc = st.text_area("Description (optional)")
 
-    image = st.file_uploader(
-        "Upload Proof (optional)",
-        type=["png", "jpg", "jpeg"]
-    )
+    image = st.file_uploader("Upload Proof (optional)", type=["png", "jpg", "jpeg"])
 
     if st.button("Submit Issue"):
         issue_id = f"ISSUE{len(issues)+1}"
@@ -28,6 +28,8 @@ def student_panel():
 
         issues.append({
             "id": issue_id,
+            "block": hostel_block,
+            "room": "Classified" if is_anonymous else room_no,
             "type": issue_type,
             "description": desc,
             "status": "Reported",
@@ -44,60 +46,50 @@ def student_panel():
         save_data("issues.json", issues)
         save_data("events.json", events)
 
-        st.success(f"Issue {issue_id} submitted!")
+        st.success(f"Issue {issue_id} submitted successfully!")
+        st.rerun()
 
     # ---------------- VIEW ISSUES ----------------
-    st.subheader("📊 Your Issues")
+    st.divider()
+    st.subheader("📊 Your Active Issues")
 
     for issue in issues:
         st.markdown(f"### {issue['id']}")
-        st.write(f"Status: {issue['status']}")
+        st.write(f"**Status:** {issue['status']}")
 
         # -------- Timeline --------
         for event in events:
             if event["issue_id"] == issue["id"]:
-                st.write(f"{event['time']} → {event['event']}")
+                st.write(f"• {event['time']} → {event['event']}")
                 if event.get("image"):
-                    st.image(event["image"], width=200)
+                    st.image(event["image"], width=150)
 
-        # -------- CONFIRMATION --------
+        # -------- CONFIRMATION LOOP --------
         if issue["status"] == "Resolved":
-            st.warning("⚠️ Please confirm if issue is resolved")
+            st.warning("⚠️ Action Required: Please confirm if this issue is actually resolved.")
 
             col1, col2 = st.columns(2)
 
-            if col1.button(
-                f"Confirm Done {issue['id']}",
-                key=f"confirm_{issue['id']}"
-            ):
+            if col1.button(f"Yes, it is fixed ({issue['id']})", key=f"confirm_{issue['id']}"):
                 issue["status"] = "Confirmed"
-
                 events.append({
                     "issue_id": issue["id"],
                     "event": "Confirmed by Student",
                     "time": current_time()
                 })
-
                 save_data("issues.json", issues)
                 save_data("events.json", events)
-
-                st.success("Issue confirmed!")
+                st.success("Issue closed!")
                 st.rerun()
 
-            if col2.button(
-                f"Not Done {issue['id']}",
-                key=f"reopen_{issue['id']}"
-            ):
+            if col2.button(f"No, it is NOT fixed ({issue['id']})", key=f"reopen_{issue['id']}"):
                 issue["status"] = "Reopened"
-
                 events.append({
                     "issue_id": issue["id"],
-                    "event": "Reopened by Student",
+                    "event": "Reopened by Student (Escalated)",
                     "time": current_time()
                 })
-
                 save_data("issues.json", issues)
                 save_data("events.json", events)
-
-                st.error("Issue reopened!")
+                st.error("Issue reopened and escalated to Warden!")
                 st.rerun()
