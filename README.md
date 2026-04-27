@@ -1,220 +1,90 @@
-README.md
-================
+# 🏠 HostelOps
 
-## Overview
+**Event-Driven Institutional Operations Accountability System**
 
-This project provides a simple data management system.
+HostelOps is a structured digital platform designed to manage institutional workflows (hostels, hospitals, residential facilities). Moving beyond simple grievance portals, it utilizes an append-only, event-driven architecture to ensure complete operational transparency, verified issue resolution, and staff accountability.
 
-## Usage
-### Commands
+## ✨ Core Features
 
-#### Loading Data
+* **Immutable Audit Trail:** Every action (reporting, assigning, resolving) is logged as a time-stamped event. History cannot be overwritten.
+* **Role-Based Access Control (RBAC):** Dedicated portals for Students (reporting/verification) and Wardens (assignment/analytics).
+* **Proof of Work:** Mandatory photo uploads for resolving maintenance issues.
+* **Closed-Loop Escalation:** Issues are only closed when verified by the reporting student; otherwise, they are escalated.
+* **Automated SLA Tracking:** Automatically calculates "Time to Resolution" metrics for administrative auditing.
 
-The `load_data` command is used to load data from a file.
+## 🛠️ Technical Stack
 
-##### Syntax
+* **Frontend/UI:** Streamlit (Python)
+* **Database:** MariaDB / MySQL (Relational)
+* **Package Manager:** `uv`
+* **Architecture:** Modular MVC-style pattern
 
-* `load_data(file)`
+## 📂 Project Structure
 
-##### Description
+```text
+hostelops/
+├── app.py                 # Main entry point and routing
+├── core/                  # Core backend logic
+│   ├── database.py        # Secure MariaDB connection handling
+│   └── utils.py           # Time formatting, image saving, and SLA calculations
+├── modules/               # UI Panels
+│   ├── admin.py           # Warden dashboard, analytics, and staff assignment
+│   └── student.py         # Issue reporting and resolution verification
+├── sql/                   # Database Migrations
+│   └── schema.sql         # Table structures (issues, events) and relations
+├── uploads/               # Local storage for image proof
+├── .env                   # Environment variables (DB credentials)
+└── requirements.txt / uv.lock
+```
 
-Loads data from the specified file.
+## 🚀 Installation & Setup
 
-##### Parameters
+### 1. Prerequisites
 
-* `file`: The file to load data from.
+* Python 3.10+ (Tested on 3.13)
+* MariaDB or MySQL Server installed locally or remotely
+* `uv` package manager (recommended)
 
-#### Saving Data
+### 2. Database Setup
 
-The `save_data` command is used to save data to a file.
+Create the database and necessary tables by executing the schema file. Log into your MariaDB instance and run:
 
-##### Syntax
+```bash
+sudo mysql -u root < sql/schema.sql
+```
 
-* `save_data(file, data)`
+*Note: We recommend creating a dedicated database user (e.g., `hostel_admin`) with privileges granted to `hostelops_db` rather than using `root`.*
 
-##### Description
+### 3. Environment Configuration
 
-Saves data to the specified file.
+Create a `.env` file in the root directory and configure your database credentials:
 
-##### Parameters
+```env
+DB_HOST=localhost
+DB_USER=your_db_user
+DB_PASS=your_secure_password
+DB_NAME=hostelops_db
+```
 
-* `file`: The file to save data to.
-* `data`: The data to save.
+### 4. Install Dependencies
 
-#### Saving an Image
+Install the required packages (Streamlit, MySQL Connector, Python-Dotenv) using `uv`:
 
-The `save_image` command is used to save an image to a file.
+```bash
+uv add streamlit mysql-connector-python python-dotenv
+```
 
-##### Syntax
+### 5. Run the Application
 
-* `save_image(file, issue_id, event_type)`
+Launch the Streamlit server:
 
-##### Description
+```bash
+uv run streamlit run app.py
+```
 
-Saves an image to the specified file.
+The application will be accessible at `http://localhost:8501`.
 
-##### Parameters
+## 📜 License
 
-* `file`: The file to save the image to.
-* `issue_id`: The ID of the issue.
-* `event_type`: The type of event.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. Copyright (c) 2026 Vikas Dhruw.
 
-#### Getting the Current Time
-
-The `current_time` command is used to get the current time.
-
-##### Syntax
-
-* `current_time()`
-
-##### Description
-
-Returns the current time.
-
-### Panels
-
-#### Admin Panel
-
-The `admin_panel` command is used to display the admin panel.
-
-##### Syntax
-
-* `admin_panel()`
-
-##### Description
-
-Displays the admin panel.
-
-#### Student Panel
-
-The `student_panel` command is used to display the student panel.
-
-##### Syntax
-
-* `student_panel()`
-
-##### Description
-
-Displays the student panel.
-
-## API Reference
-
-### main.py
-
-#### Functions
-
-##### load_data
-
-* `load_data(file)`: Loads data from the specified file.
-* Parameters:
-	+ `file`: The file to load data from.
-
-##### save_data
-
-* `save_data(file, data)`: Saves data to the specified file.
-* Parameters:
-	+ `file`: The file to save data to.
-	+ `data`: The data to save.
-
-##### save_image
-
-* `save_image(file, issue_id, event_type)`: Saves an image to the specified file.
-* Parameters:
-	+ `file`: The file to save the image to.
-	+ `issue_id`: The ID of the issue.
-	+ `event_type`: The type of event.
-
-##### current_time
-
-* `current_time()`: Returns the current time.
-
-### admin.py
-
-#### Functions
-
-##### admin_panel
-
-* `admin_panel()`: Displays the admin panel.
-
-### student.py
-
-#### Functions
-
-##### student_panel
-
-* `student_panel()`: Displays the student panel.
-
-## Detailed API Documentation
-
-### main.py
-
-#### Functions
-
-##### load_data
-
-* `load_data(file)`: Loads data from the specified file.
-* Parameters:
-	+ `file`: The file to load data from.
-
-##### save_data
-
-* `save_data(file, data)`: Saves data to the specified file.
-* Parameters:
-	+ `file`: The file to save data to.
-	+ `data`: The data to save.
-
-##### save_image
-
-* `save_image(file, issue_id, event_type)`: Saves an image to the specified file.
-* Parameters:
-	+ `file`: The file to save the image to.
-	+ `issue_id`: The ID of the issue.
-	+ `event_type`: The type of event.
-
-##### current_time
-
-* `current_time()`: Returns the current time.
-
-### admin.py
-
-#### Functions
-
-##### admin_panel
-
-* `admin_panel()`: Displays the admin panel.
-
-### student.py
-
-#### Functions
-
-##### student_panel
-
-* `student_panel()`: Displays the student panel.
-
-## Panels Documentation
-
-### Admin Panel
-
-#### Description
-
-The admin panel provides administrative functionality.
-
-#### Usage
-
-* `admin_panel()`
-
-### Student Panel
-
-#### Description
-
-The student panel provides student functionality.
-
-#### Usage
-
-* `student_panel()`
-
-## Update History
-
-* Initial README.md creation
-* Updated to reflect accurate project source information 
-* Added student_panel to documentation due to presence in project source.
