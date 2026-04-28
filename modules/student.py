@@ -1,6 +1,7 @@
 import streamlit as st
 from core.database import get_db_connection
 from core.utils import current_time, save_image
+from core.models import HostelManager
 
 def student_panel(student_id):
     st.subheader(f"📌 Report an Issue (User: {student_id})")
@@ -16,30 +17,20 @@ def student_panel(student_id):
     image = st.file_uploader("Upload Proof (optional)", type=["png", "jpg", "jpeg"])
 
     if st.button("Submit Issue"):
+        final_room = "Classified" if is_anonymous else room_no
+        
+        # Quickly fetch the next ID to save the image with the correct name
         conn = get_db_connection()
         if not conn: return
         cursor = conn.cursor(dictionary=True)
-
         cursor.execute("SELECT COUNT(*) AS cnt FROM issues")
-        count = cursor.fetchone()['cnt']
-        issue_id = f"ISSUE{count + 1}"
-        
-        time = current_time()
-        img_path = save_image(image, issue_id, "reported")
-        final_room = "Classified" if is_anonymous else room_no
-
-        cursor.execute("""
-            INSERT INTO issues (issue_id, student_id, block, room, issue_type, description, current_status, created_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, (issue_id, student_id, hostel_block, final_room, issue_type, desc, "Reported", time))
-
-        cursor.execute("""
-            INSERT INTO events (issue_id, event_desc, event_time, image_path)
-            VALUES (%s, %s, %s, %s)
-        """, (issue_id, "Reported", time, img_path))
-
-        conn.commit()
+        expected_id = f"ISSUE{cursor.fetchone()['cnt'] + 1}"
         conn.close()
+
+        img_path = save_image(image, expected_id, "reported")
+
+        # Delegate the actual DB writing to models.py
+        issue_id = HostelManager.log_issue(student_id, hostel_block, final_room, issue_type, desc, img_path)
 
         st.success(f"Issue {issue_id} submitted successfully!")
         st.rerun()

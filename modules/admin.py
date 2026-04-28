@@ -1,6 +1,8 @@
 import streamlit as st
 from core.database import get_db_connection
 from core.utils import current_time, save_image, calculate_duration
+from core.models import HostelManager  # <-- Fixed syntax here
+import pandas as pd 
 
 def admin_panel():
     conn = get_db_connection()
@@ -37,6 +39,10 @@ def admin_panel():
 
     cursor.execute("SELECT * FROM issues ORDER BY CASE WHEN current_status = 'Reopened' THEN 0 ELSE 1 END, created_at DESC")
     issues = cursor.fetchall()
+
+    col1, col2 = st.columns(2)
+    filter_status = col1.selectbox("Filter by Status", ["All", "Reported", "In Progress", "Resolved", "Reopened", "Confirmed"])
+    filter_type = col2.selectbox("Filter by Category", ["All", "Water", "Electricity", "Hygiene"])
 
     if not issues:
         st.info("No issues yet. The hostel is running smoothly!")
@@ -110,4 +116,19 @@ def admin_panel():
                     st.success(f"⏱️ **Time to Resolution:** {duration}")
                 except Exception:
                     pass
+
+    # Fetch events using the clean DAO model instead of raw SQL
+    all_events = HostelManager.get_all_events()
+
+    if all_events:
+        df = pd.DataFrame(all_events)
+        csv = df.to_csv(index=False).encode('utf-8')
+    
+        st.download_button(
+            label="📥 Download Full Audit Log (CSV)",
+            data=csv,
+            file_name="hostelops_audit_log.csv",
+            mime="text/csv",
+        )
+
     conn.close()
